@@ -1,0 +1,136 @@
+<html>
+<head>
+<title>Androino</title>
+
+<style>
+body {
+    background: #32323D;
+    color:white;
+}
+div#content {
+    padding-top:100px;
+    margin:auto;
+}
+div#output {
+    border:1px solid black;
+    background:grey;
+    text-align:center;
+	width:150px;
+}
+</style>
+
+<script>
+var droid = new Android();
+
+function getMillis(dateformat)
+{
+ var hms = dateformat.split(":");
+ var out  = hms[0] * 3600000 + hms[1] * 60000 + hms[2] * 1000;
+ return out;
+	
+}
+function getValues()
+{
+	var command = getMillis(document.getElementById('swit').value) + ",";
+	command += getMillis(document.getElementById('dlugoscDnia').value) + ",";
+	command += Math.round(document.getElementById('powerMin').value*(255/100)) + ",";
+	command += Math.round(document.getElementById('powerMax').value*(255/100)) + ";";
+	return command
+
+}
+function fetchData()
+{
+	var command = "d" + document.getElementById("pin").value + ",";
+	command += getValues();
+	return command
+
+}
+
+
+var command = function() 
+{
+    droid.eventPost('fetch_data', fetchData());
+}
+    droid.registerCallback('display_data', function(data) 
+	{
+		document.getElementById('output').innerHTML = ' ' + data.data;
+	});
+
+function timesync()
+{
+	var currentdate = new Date(); 
+	var datetime = "t" + currentdate.getDate() + ";"
+                + (currentdate.getMonth()+1)  + ";" 
+                + currentdate.getFullYear() + ";"  
+                + currentdate.getHours() + ";"  
+                + currentdate.getMinutes() + ";" 
+                + currentdate.getSeconds() + ";"
+		+ currentdate.getDay() + ";";
+    droid.eventPost('fetch_data', datetime );
+
+}
+function getPinCommand(pin)
+{
+	return "d" + pin + "," + getValues();
+}
+function updateAll()
+{
+	for(var i=2; i<18; ++i)
+	{ 
+		setTimeout( function(i){
+			droid.eventPost('fetch_data', getPinCommand(i));
+		}, 200*i, i);
+		
+	}
+}
+</script>
+
+</head>
+<body>
+<div id="content">
+	<table border=1>
+		<tr>
+			<td>Pin:&nbsp;<select id="pin">
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+					<option value="13">13</option>
+					<option value="14">14</option>
+					<option value="15">15</option>
+					<option value="16">16</option>
+					<option value="17">17</option>
+				</select>
+			</td>
+			<td>
+				Swit (hh:mm:ss):<input type='text' size=4 maxlength=8 id=swit value="08:00:00">
+			</td>
+			<td>
+				Dlugosc dnia (hh:mm:ss):<input type='text' size=4 maxlength=8 id=dlugoscDnia value="13:00:00">
+			</td>
+			<td>
+				MocMin(%):<input type='text' size=1 maxlength=3 id=powerMin value=0>
+			</td>
+			<td>
+				MocMax(%):<input type='text' size=1 maxlength=3 id=powerMax value=100>
+			</td>
+		</tr>
+	
+    
+    <tr><td colspan=5><button onclick="command();">Zapisz zmiany</button></td></tr>
+    <tr><td colspan=5><button onclick="timesync();">Zsynchronizuj czas</button></td></tr>
+    <tr><td colspan=5><button onclick="updateAll();">Przestaw wszystkie diody</button></td></tr>
+	</table>
+
+    <div id="output">-</div>
+
+</div>
+</body>
+</html>
