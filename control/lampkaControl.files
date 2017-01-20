@@ -1,7 +1,0 @@
-clockControl.h
-control.ino
-EEPROMHelperFunc.h
-LEDDayDriver.h
-PWMParams.h
-PwmProxy.h
-LCDDisplay.h
